@@ -21,9 +21,9 @@ export class SerializeInterceptor<T> implements NestInterceptor {
 
   intercept(
     context: ExecutionContext,
-    next: CallHandler<T>,
+    handler: CallHandler<T>,
   ): Observable<T> | Promise<Observable<T>> {
-    return next.handle().pipe(
+    return handler.handle().pipe(
       map(
         (data: unknown) =>
           plainToInstance(this.dto, data, {
