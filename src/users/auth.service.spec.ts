@@ -9,10 +9,23 @@ describe('AuthService', () => {
   let fakeUserService: Partial<UsersService>;
 
   beforeEach(async () => {
+    //create a fake copy of the users service
+    const users: User[] = [];
+
     fakeUserService = {
-      find: () => Promise.resolve([]),
-      create: (email: string, password: string) =>
-        Promise.resolve({ id: 1, email, password } as User),
+      find: (email: string) => {
+        const filteredUsers = users.filter((user) => user.email === email);
+        return Promise.resolve(filteredUsers);
+      },
+      create: (email: string, password: string) => {
+        const user = {
+          id: Math.floor(Math.random() * 99999),
+          email,
+          password,
+        } as User;
+        users.push(user);
+        return Promise.resolve(user);
+      },
     };
 
     const module = await Test.createTestingModule({
@@ -59,14 +72,18 @@ describe('AuthService', () => {
     });
 
     it('throws if an invalid password is provided', async () => {
-      fakeUserService.find = () =>
-        Promise.resolve([
-          { email: 'daniel@gmail.com', password: '123454' } as User,
-        ]);
+      await service.signup('danielguve@gmail.com', '12433435');
 
       await expect(
         service.signin('danielguve@gmail.com', '06a141605c4c'),
       ).rejects.toThrow(BadRequestException);
+    });
+
+    it('return a user if correct password is provided', async () => {
+      await service.signup('asasass@gmail.com', 'mypassword');
+
+      const user = await service.signin('asasass@gmail.com', 'mypassword');
+      expect(user).toBeDefined();
     });
   });
 });

@@ -15,11 +15,11 @@ import { UpdateUserDto } from './dtos/update-user.dto';
 import { UsersService } from './users.service';
 import { NotFoundException } from '@nestjs/common';
 import { UserDto } from './dtos/user.dto';
-import { Serializable } from 'src/interceptors/serialize.interceptor';
+import { Serializable } from '../interceptors/serialize.interceptor';
 import { AuthService } from './auth.service';
 import { CurrentUser } from './decorators/current-user';
 import { User } from './user.entity';
-import { AuthGuard } from 'src/guards/auth.guard';
+import { AuthGuard } from '../guards/auth.guard';
 
 @Controller('auth')
 @Serializable(UserDto)
@@ -56,10 +56,9 @@ export class UsersController {
 
   @Get('/:id')
   async findUser(@Param('id') id: string) {
-    console.log('ejecutando el handler');
     const user = await this.usersService.findOne(parseInt(id));
     if (!user) {
-      return new NotFoundException('user not found');
+      throw new NotFoundException('user not found');
     }
     return user;
   }
